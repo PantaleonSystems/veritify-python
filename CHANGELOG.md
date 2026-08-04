@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.0 — 2026-08-04
 
 - Adds `usage()` — look up how many calls the configured `api_key` has
   made, and when it was first/last used. Requires an `api_key`; a key
