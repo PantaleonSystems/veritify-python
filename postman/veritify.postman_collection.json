@@ -1,0 +1,143 @@
+{
+  "info": {
+    "name": "Veritify API",
+    "description": "Official Postman collection for the Veritify API — verifiable signal integrity and novelty detection for data streams.\n\nQuick start:\n1. Run **Signup** first to get an `api_key` (or set the `api_key` collection variable if you already have one).\n2. Copy the returned key into the `api_key` collection variable — every other authenticated request reads it from there.\n3. Try **Mine (single mode)** with any small text/audio file.\n\nDocs: https://github.com/PantaleonSystems/veritify-python/blob/main/docs/getting-started.md\nSDK: https://pypi.org/project/veritify/",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      { "key": "token", "value": "{{api_key}}", "type": "string" }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://veritify-api-production.up.railway.app",
+      "type": "string"
+    },
+    {
+      "key": "api_key",
+      "value": "",
+      "type": "string",
+      "description": "Paste the key returned by Signup here. Leave empty to call /mine anonymously (shared rate limit)."
+    }
+  ],
+  "item": [
+    {
+      "name": "Signup",
+      "request": {
+        "method": "POST",
+        "auth": { "type": "noauth" },
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"you@example.com\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/signup",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "signup"]
+        },
+        "description": "Self-service — no authentication required. The returned `api_key` is shown exactly once; copy it into the `api_key` collection variable right away.\n\nErrors: 409 (email already has an active key), 422 (malformed email), 429 (too many signups from your IP)."
+      }
+    },
+    {
+      "name": "Mine (single mode)",
+      "request": {
+        "method": "POST",
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            { "key": "file", "type": "file", "src": [] }
+          ]
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/mine",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "mine"]
+        },
+        "description": "Upload a file and get back its integrity/novelty verdict. Attach any small audio, text, or document file in the `file` form field.\n\nErrors: 401/403 (secure-mode auth), 413 (too large), 422 (empty/corrupt/unsupported), 429, 503, 504."
+      }
+    },
+    {
+      "name": "Mine (dual mode — with question)",
+      "request": {
+        "method": "POST",
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            { "key": "file", "type": "file", "src": [] },
+            { "key": "question", "value": "does this mention Q3 revenue?", "type": "text" }
+          ]
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/mine",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "mine"]
+        },
+        "description": "Same endpoint as single mode, but with a `question` field — compares the file against the question instead of scoring it alone. Returns a `verdict` field with one of 5 closed values."
+      }
+    },
+    {
+      "name": "Verify",
+      "request": {
+        "method": "GET",
+        "auth": { "type": "noauth" },
+        "url": {
+          "raw": "{{base_url}}/api/v1/verify/:receipt_hash",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "verify", ":receipt_hash"],
+          "variable": [
+            {
+              "key": "receipt_hash",
+              "value": "",
+              "description": "64-char hex SHA-256 receipt_hash from a previous Mine response"
+            }
+          ]
+        },
+        "description": "Public, no API key required. Always returns 200 — `known: false` for a hash never seen, never a 404. Only a malformed hash (wrong length/non-hex) returns 422."
+      }
+    },
+    {
+      "name": "Usage",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/api/v1/usage",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "usage"]
+        },
+        "description": "Requires the `api_key` collection variable to be set. Returns total_calls / first_used_at / last_used_at for that key. A key that's never been used returns total_calls=0, not an error."
+      }
+    },
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "auth": { "type": "noauth" },
+        "url": {
+          "raw": "{{base_url}}/health",
+          "host": ["{{base_url}}"],
+          "path": ["health"]
+        },
+        "description": "No /api/v1 prefix — mounted at the root, unlike the other endpoints. No API key required."
+      }
+    },
+    {
+      "name": "Stats",
+      "request": {
+        "method": "GET",
+        "auth": { "type": "noauth" },
+        "url": {
+          "raw": "{{base_url}}/stats",
+          "host": ["{{base_url}}"],
+          "path": ["stats"]
+        },
+        "description": "Aggregate, instance-wide counters — no /api/v1 prefix, no API key required."
+      }
+    }
+  ]
+}

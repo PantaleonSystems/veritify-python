@@ -77,6 +77,10 @@ More runnable examples live in [`examples/`](https://github.com/PantaleonSystems
 a dual query (`question=` comparing data against a query), and full
 error-handling coverage.
 
+Prefer testing the API straight from your HTTP client instead of Python? Import
+[`postman/veritify.postman_collection.json`](https://github.com/PantaleonSystems/veritify-python/blob/main/postman/veritify.postman_collection.json)
+into Postman — every endpoint, pre-filled against production.
+
 ## Status
 
 Veritify is under active development. The SDK's contract (`signup`, `mine`,

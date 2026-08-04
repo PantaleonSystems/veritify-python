@@ -119,3 +119,6 @@ print(f"Publicly verifiable: {verification.known}")
   handle each one in code.
 - Runnable examples in [`examples/`](https://github.com/PantaleonSystems/veritify-python/tree/main/examples):
   `quickstart.py`, `signup.py`, `dual_query.py`, `error_handling.py`.
+- No Python handy? Import
+  [`postman/veritify.postman_collection.json`](https://github.com/PantaleonSystems/veritify-python/blob/main/postman/veritify.postman_collection.json)
+  into Postman and call every endpoint directly.
