@@ -4,6 +4,7 @@
 [![PyPI version](https://img.shields.io/pypi/v/veritify.svg)](https://pypi.org/project/veritify/)
 [![Python versions](https://img.shields.io/pypi/pyversions/veritify.svg)](https://pypi.org/project/veritify/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/PantaleonSystems/veritify-python/blob/main/LICENSE)
+[![Run in Postman](https://run.pstmn.io/button.svg)](https://www.postman.com/pantaleonsystems/veritify/collection/4sf5u84/veritify-api?action=share&creator=57133975)
 
 **Official Python SDK for Veritify** — measure the integrity, novelty, and
 authenticity of data, with a cryptographically verifiable proof behind every
@@ -77,9 +78,11 @@ More runnable examples live in [`examples/`](https://github.com/PantaleonSystems
 a dual query (`question=` comparing data against a query), and full
 error-handling coverage.
 
-Prefer testing the API straight from your HTTP client instead of Python? Import
+Prefer testing the API straight from your HTTP client instead of Python?
+[**Run the collection in Postman**](https://www.postman.com/pantaleonsystems/veritify/collection/4sf5u84/veritify-api?action=share&creator=57133975) —
+every endpoint, pre-filled against production. The same file also lives at
 [`postman/veritify.postman_collection.json`](https://github.com/PantaleonSystems/veritify-python/blob/main/postman/veritify.postman_collection.json)
-into Postman — every endpoint, pre-filled against production.
+if you'd rather import it manually.
 
 ## Status
 
