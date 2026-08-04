@@ -1,12 +1,13 @@
 """Quickstart — process a file and publicly verify its receipt.
 
-Run against a Veritify instance you have available (e.g. a local dev
-server). Reads VERITIFY_BASE_URL / VERITIFY_API_KEY from a .env file in the
-repo root if present (copy .env.example to .env and edit it), or from the
-environment directly:
+Runs against the public Veritify API by default. Reads VERITIFY_BASE_URL /
+VERITIFY_API_KEY from a .env file in the repo root if present (copy
+.env.example to .env and edit it), or from the environment directly:
 
-    export VERITIFY_BASE_URL=http://localhost:8000
+    export VERITIFY_BASE_URL=https://veritify-api-production.up.railway.app
     python examples/quickstart.py path/to/file.wav
+
+Don't have an API key yet? See examples/signup.py — it takes one call.
 """
 
 from __future__ import annotations

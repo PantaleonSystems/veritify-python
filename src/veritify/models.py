@@ -124,3 +124,20 @@ class Stats:
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "Stats":
         return _from_dict(cls, data)
+
+
+@dataclass(frozen=True)
+class SignupResult:
+    """Resultado de `VeritifyClient.signup()`.
+
+    ``api_key`` só existe UMA VEZ, neste retorno — a Veritify não guarda a
+    chave em texto puro e não consegue mostrá-la de novo depois.
+    """
+
+    api_key: str
+    plan: str
+    message: str
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "SignupResult":
+        return _from_dict(cls, data)

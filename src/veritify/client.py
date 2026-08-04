@@ -9,15 +9,23 @@ from typing import Any, Optional, Union
 import requests
 
 from .exceptions import VeritifyAPIError, VeritifyConnectionError
-from .models import HealthStatus, MineResult, MineResultDual, Stats, VerifyResult
+from .models import (
+    HealthStatus,
+    MineResult,
+    MineResultDual,
+    SignupResult,
+    Stats,
+    VerifyResult,
+)
 
 _DEFAULT_TIMEOUT = 60.0
 
-# Real quirk of the API today: /mine and /verify are namespaced under
-# /api/v1, but /health and /stats are mounted at the root. Encoding this
-# here means SDK users never need to know it.
+# Real quirk of the API today: /mine, /verify and /signup are namespaced
+# under /api/v1, but /health and /stats are mounted at the root. Encoding
+# this here means SDK users never need to know it.
 _MINE_PATH = "/api/v1/mine"
 _VERIFY_PATH = "/api/v1/verify/{receipt_hash}"
+_SIGNUP_PATH = "/api/v1/signup"
 _HEALTH_PATH = "/health"
 _STATS_PATH = "/stats"
 
@@ -96,6 +104,23 @@ class VeritifyClient:
         if payload.get("mode") == "dual":
             return MineResultDual.from_dict(payload)
         return MineResult.from_dict(payload)
+
+    def signup(self, email: str) -> SignupResult:
+        """Create a new API key (self-service, no authentication required).
+
+        This is the only method meant to work before you have an API key —
+        ``VeritifyClient`` doesn't need one configured to call it.
+
+        The returned ``api_key`` is shown **exactly once**. Veritify never
+        stores it in a recoverable form, so if you lose it there is no way
+        to retrieve it — you'd need to sign up again with a different email
+        (an email that already has an active key gets a 409, not a second
+        key). Save it immediately (e.g. into your own ``.env`` file).
+        """
+        payload = self._request(
+            "POST", _SIGNUP_PATH, json={"email": email}
+        )
+        return SignupResult.from_dict(payload)
 
     def verify(self, receipt_hash: str) -> VerifyResult:
         """Publicly verify a receipt hash returned by a previous `mine()` call.

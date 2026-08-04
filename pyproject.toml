@@ -44,6 +44,8 @@ dev = [
 
 [project.urls]
 Homepage = "https://github.com/PantaleonSystems/veritify-python"
+Documentation = "https://github.com/PantaleonSystems/veritify-python/blob/main/docs/getting-started.md"
+Changelog = "https://github.com/PantaleonSystems/veritify-python/blob/main/CHANGELOG.md"
 Issues = "https://github.com/PantaleonSystems/veritify-python/issues"
 
 [tool.hatch.build.targets.wheel]

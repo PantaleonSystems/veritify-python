@@ -13,7 +13,14 @@
 from ._version import __version__
 from .client import VeritifyClient
 from .exceptions import VeritifyAPIError, VeritifyConnectionError, VeritifyError
-from .models import HealthStatus, MineResult, MineResultDual, Stats, VerifyResult
+from .models import (
+    HealthStatus,
+    MineResult,
+    MineResultDual,
+    SignupResult,
+    Stats,
+    VerifyResult,
+)
 
 __all__ = [
     "VeritifyClient",
@@ -23,6 +30,7 @@ __all__ = [
     "MineResult",
     "MineResultDual",
     "VerifyResult",
+    "SignupResult",
     "HealthStatus",
     "Stats",
     "__version__",

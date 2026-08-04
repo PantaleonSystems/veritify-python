@@ -280,3 +280,94 @@ class TestClientConfig:
     def test_context_manager_closes_session(self):
         with VeritifyClient(base_url=BASE_URL) as client:
             assert client.base_url == BASE_URL
+
+
+class TestSignup:
+    """signup() — o único método pensado para funcionar SEM api_key prévia."""
+
+    @responses.activate
+    def test_signup_success(self):
+        client = VeritifyClient(base_url=BASE_URL)
+        responses.add(
+            responses.POST,
+            f"{BASE_URL}/api/v1/signup",
+            json={
+                "api_key": "vrfy_live_abc123",
+                "plan": "free",
+                "message": "Guarde esta chave agora.",
+            },
+            status=201,
+        )
+        result = client.signup("dev@example.com")
+        assert result.api_key == "vrfy_live_abc123"
+        assert result.plan == "free"
+        assert result.message == "Guarde esta chave agora."
+
+    @responses.activate
+    def test_signup_sends_email_in_body(self):
+        client = VeritifyClient(base_url=BASE_URL)
+        responses.add(
+            responses.POST,
+            f"{BASE_URL}/api/v1/signup",
+            json={"api_key": "vrfy_live_x", "plan": "free", "message": "m"},
+            status=201,
+        )
+        client.signup("dev@example.com")
+        sent_body = responses.calls[0].request.body
+        assert b"dev@example.com" in sent_body
+
+    @responses.activate
+    def test_signup_conflict_raises_api_error(self):
+        client = VeritifyClient(base_url=BASE_URL)
+        responses.add(
+            responses.POST,
+            f"{BASE_URL}/api/v1/signup",
+            json={"detail": "dev@example.com ja possui uma chave ativa"},
+            status=409,
+        )
+        with pytest.raises(VeritifyAPIError) as exc_info:
+            client.signup("dev@example.com")
+        assert exc_info.value.status_code == 409
+
+    @responses.activate
+    def test_signup_invalid_email_raises_api_error(self):
+        client = VeritifyClient(base_url=BASE_URL)
+        responses.add(
+            responses.POST,
+            f"{BASE_URL}/api/v1/signup",
+            json={"detail": "email invalido"},
+            status=422,
+        )
+        with pytest.raises(VeritifyAPIError) as exc_info:
+            client.signup("not-an-email")
+        assert exc_info.value.status_code == 422
+
+    @responses.activate
+    def test_signup_rate_limited_raises_api_error(self):
+        client = VeritifyClient(base_url=BASE_URL)
+        responses.add(
+            responses.POST,
+            f"{BASE_URL}/api/v1/signup",
+            json={"detail": "Muitos cadastros deste IP"},
+            status=429,
+            headers={"Retry-After": "30"},
+        )
+        with pytest.raises(VeritifyAPIError) as exc_info:
+            client.signup("dev@example.com")
+        assert exc_info.value.status_code == 429
+
+    @responses.activate
+    def test_signup_works_without_api_key_set(self):
+        """signup é o único endpoint pensado pra funcionar sem chave prévia."""
+        client = VeritifyClient(base_url=BASE_URL)  # sem api_key=
+        assert client.api_key is None
+        responses.add(
+            responses.POST,
+            f"{BASE_URL}/api/v1/signup",
+            json={"api_key": "vrfy_live_y", "plan": "free", "message": "m"},
+            status=201,
+        )
+        result = client.signup("noauth@example.com")
+        assert result.api_key == "vrfy_live_y"
+        # confirma que a chamada não mandou Authorization (nada configurado)
+        assert "Authorization" not in responses.calls[0].request.headers
