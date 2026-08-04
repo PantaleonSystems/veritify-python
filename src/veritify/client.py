@@ -15,6 +15,7 @@ from .models import (
     MineResultDual,
     SignupResult,
     Stats,
+    UsageResult,
     VerifyResult,
 )
 
@@ -26,6 +27,7 @@ _DEFAULT_TIMEOUT = 60.0
 _MINE_PATH = "/api/v1/mine"
 _VERIFY_PATH = "/api/v1/verify/{receipt_hash}"
 _SIGNUP_PATH = "/api/v1/signup"
+_USAGE_PATH = "/api/v1/usage"
 _HEALTH_PATH = "/health"
 _STATS_PATH = "/stats"
 
@@ -121,6 +123,18 @@ class VeritifyClient:
             "POST", _SIGNUP_PATH, json={"email": email}
         )
         return SignupResult.from_dict(payload)
+
+    def usage(self) -> UsageResult:
+        """Look up how much the configured ``api_key`` has been used.
+
+        Requires ``api_key`` to be set (constructor argument or
+        ``VERITIFY_API_KEY``) — raises :class:`VeritifyAPIError` with
+        ``status_code=401`` otherwise, same as an invalid or revoked key.
+        A key that has never made a call returns ``total_calls=0`` with
+        both timestamps ``None`` — that's a normal result, not an error.
+        """
+        payload = self._request("GET", _USAGE_PATH)
+        return UsageResult.from_dict(payload)
 
     def verify(self, receipt_hash: str) -> VerifyResult:
         """Publicly verify a receipt hash returned by a previous `mine()` call.

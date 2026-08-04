@@ -19,6 +19,7 @@ from .models import (
     MineResultDual,
     SignupResult,
     Stats,
+    UsageResult,
     VerifyResult,
 )
 
@@ -31,6 +32,7 @@ __all__ = [
     "MineResultDual",
     "VerifyResult",
     "SignupResult",
+    "UsageResult",
     "HealthStatus",
     "Stats",
     "__version__",

@@ -371,3 +371,77 @@ class TestSignup:
         assert result.api_key == "vrfy_live_y"
         # confirma que a chamada não mandou Authorization (nada configurado)
         assert "Authorization" not in responses.calls[0].request.headers
+
+
+class TestUsage:
+    """usage() — histórico de uso da própria chave (GET /api/v1/usage)."""
+
+    @responses.activate
+    def test_usage_success(self):
+        client = VeritifyClient(base_url=BASE_URL, api_key="vrfy_live_abc")
+        responses.add(
+            responses.GET,
+            f"{BASE_URL}/api/v1/usage",
+            json={
+                "total_calls": 3,
+                "first_used_at": 100.0,
+                "last_used_at": 300.0,
+            },
+            status=200,
+        )
+        result = client.usage()
+        assert result.total_calls == 3
+        assert result.first_used_at == 100.0
+        assert result.last_used_at == 300.0
+
+    @responses.activate
+    def test_usage_never_used_key(self):
+        client = VeritifyClient(base_url=BASE_URL, api_key="vrfy_live_abc")
+        responses.add(
+            responses.GET,
+            f"{BASE_URL}/api/v1/usage",
+            json={"total_calls": 0, "first_used_at": None, "last_used_at": None},
+            status=200,
+        )
+        result = client.usage()
+        assert result.total_calls == 0
+        assert result.first_used_at is None
+        assert result.last_used_at is None
+
+    @responses.activate
+    def test_usage_sends_authorization_header(self):
+        client = VeritifyClient(base_url=BASE_URL, api_key="vrfy_live_abc")
+        responses.add(
+            responses.GET,
+            f"{BASE_URL}/api/v1/usage",
+            json={"total_calls": 0, "first_used_at": None, "last_used_at": None},
+            status=200,
+        )
+        client.usage()
+        assert responses.calls[0].request.headers["Authorization"] == "Bearer vrfy_live_abc"
+
+    @responses.activate
+    def test_usage_without_api_key_raises_api_error(self):
+        client = VeritifyClient(base_url=BASE_URL)  # sem api_key=
+        responses.add(
+            responses.GET,
+            f"{BASE_URL}/api/v1/usage",
+            json={"detail": "Authorization ausente."},
+            status=401,
+        )
+        with pytest.raises(VeritifyAPIError) as exc_info:
+            client.usage()
+        assert exc_info.value.status_code == 401
+
+    @responses.activate
+    def test_usage_invalid_key_raises_api_error(self):
+        client = VeritifyClient(base_url=BASE_URL, api_key="vrfy_live_bad")
+        responses.add(
+            responses.GET,
+            f"{BASE_URL}/api/v1/usage",
+            json={"detail": "Chave de API invalida ou revogada."},
+            status=401,
+        )
+        with pytest.raises(VeritifyAPIError) as exc_info:
+            client.usage()
+        assert exc_info.value.status_code == 401

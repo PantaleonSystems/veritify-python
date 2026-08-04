@@ -8,6 +8,7 @@ detail. For "what error can this raise, and what do I do about it", see
 - [`signup()`](#signup)
 - [`mine()`](#mine) — single mode and dual mode
 - [`verify()`](#verify)
+- [`usage()`](#usage)
 - [`health()`](#health)
 - [`stats()`](#stats)
 - [`close()` / context manager](#close--context-manager)
@@ -213,6 +214,41 @@ hash. See [Errors](errors.md#verify-errors).
 
 ---
 
+## `usage()`
+
+```python
+client.usage() -> UsageResult
+```
+
+Looks up how much the configured `api_key` has been used. Requires
+`api_key` to be set — this is the one method (besides `mine`'s secure mode)
+that always needs authentication, since there's no such thing as anonymous
+usage history to look up.
+
+No parameters — reads the configured `api_key`.
+
+**Returns `UsageResult`:**
+
+| Field | Type | Notes |
+|---|---|---|
+| `total_calls` | `int` | ≥ 0. How many authenticated calls this key has made. |
+| `first_used_at` | `float \| None` | Unix timestamp of the first call. `None` if the key has never been used. |
+| `last_used_at` | `float \| None` | Unix timestamp of the most recent call. `None` if the key has never been used. |
+
+A freshly created key that hasn't made a call yet returns normally, with
+`total_calls=0` and both timestamps `None` — that's the expected state for
+a new key, not an error.
+
+```python
+usage = client.usage()
+print(f"{usage.total_calls} calls made with this key")
+```
+
+**Raises:** `VeritifyAPIError` with `status_code=401` if no `api_key` is
+configured, or if it's invalid/revoked. See [Errors](errors.md#usage-errors).
+
+---
+
 ## `health()`
 
 ```python
@@ -291,5 +327,6 @@ but it matters if you're constructing raw HTTP requests yourself.
 | `POST` | `/api/v1/mine` |
 | `GET` | `/api/v1/verify/{receipt_hash}` |
 | `POST` | `/api/v1/signup` |
+| `GET` | `/api/v1/usage` |
 | `GET` | `/health` |
 | `GET` | `/stats` |

@@ -141,3 +141,19 @@ class SignupResult:
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "SignupResult":
         return _from_dict(cls, data)
+
+
+@dataclass(frozen=True)
+class UsageResult:
+    """Resultado de `VeritifyClient.usage()` — histórico de uso da própria
+    chave de API. Uma chave nunca usada tem `total_calls=0` e os dois
+    timestamps `None` — não é um erro, é o estado normal de uma chave nova.
+    """
+
+    total_calls: int
+    first_used_at: float | None = None
+    last_used_at: float | None = None
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "UsageResult":
+        return _from_dict(cls, data)

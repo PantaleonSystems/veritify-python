@@ -31,6 +31,7 @@ there's no `status_code`, because the request never got a response at all.
 | Status | Where | Cause |
 |---|---|---|
 | **401** | `mine()` | Secure mode: missing/invalid/expired signature (anti-replay window). Or: an `Authorization` header was sent with an invalid or revoked API key — never silently falls back to the anonymous rate limit. |
+| **401** | `usage()` | No `api_key` configured, or it's invalid/revoked. Unlike `mine()`, there's no anonymous fallback here — usage history only makes sense per key. |
 | **403** | `mine()` | Uploading a raw file when the server isn't running in demo mode. Not observable against the current production instance today (it runs in demo mode), documented for when that changes. |
 | **409** | `signup()` | The email already has an active key. `detail` is a plain string. |
 | **413** | `mine()` | The file is larger than the server's configured upload ceiling. Nothing beyond the limit is ever written server-side. |
